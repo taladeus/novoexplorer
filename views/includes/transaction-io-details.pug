@@ -1,0 +1,143 @@
+- var fontawesomeInputName = "sign-in-alt";
+- var fontawesomeOutputName = "sign-out-alt";
+
+- var totalIOValues = utils.getTxTotalInputOutputValues(tx, txInputs, blockHeight);
+
+div(class="row monospace")
+	div(class="col-lg-6")
+		if (txInputs)
+			- var extraInputCount = 0;
+			each txVin, txVinIndex in tx.vin
+				if (!txVin.coinbase)
+					- var vout = null;
+					if (txInputs && txInputs[txVinIndex])
+						- var txInput = txInputs[txVinIndex];
+						if (txInput.vout && txInput.vout[txVin.vout])
+							- var vout = txInput.vout[txVin.vout];
+
+				if (txVin.coinbase || vout)
+					div(class="row")
+						div(class="tx-io-label")
+							a(data-toggle="tooltip", title=("Input #" + (txVinIndex + 1).toLocaleString()), style="white-space: nowrap;")
+								i(class=("fas fa-" + fontawesomeInputName + " mr-2"))
+								span(class="d-inline d-md-none") Input #
+								span #{(txVinIndex + 1).toLocaleString()}
+
+						div(class="tx-io-content")
+							div(class="row")
+								div(class="tx-io-desc")
+									if (txVin.coinbase)
+										span(class="tag") coinbase
+										span Newly minted coins
+									else
+										if (vout && vout.scriptPubKey && vout.scriptPubKey.addresses)
+											div(style="word-break: break-word;")
+												a(href=("/address/" + vout.scriptPubKey.addresses[0])) #{vout.scriptPubKey.addresses[0]}
+												if (global.specialAddresses[vout.scriptPubKey.addresses[0]])
+													- var specialAddressInfo = global.specialAddresses[vout.scriptPubKey.addresses[0]];
+													if (specialAddressInfo.type == "minerPayout")
+														span  
+														a(data-toggle="tooltip", title=("Miner payout address: " + specialAddressInfo.minerInfo.name))
+															i(class="fas fa-certificate text-primary")
+													else if (specialAddressInfo.type == "donation")
+														span  
+														a(data-toggle="tooltip", title=("Development donation address. All support is appreciated!"))
+															i(class="fas fa-certificate text-primary")
+
+											span(class="small") via 
+												a(href=("/tx/" + txInput.txid + "#output-" + txVin.vout)) #{txInput.txid.substring(0, 20)}...[#{txVin.vout}]
+
+								div(class="tx-io-value")
+									if (txVin.coinbase)
+										- var currencyValue = coinConfig.blockRewardFunction(blockHeight);
+										include ./value-display.pug
+									else
+										if (vout && vout.value)
+											- var currencyValue = vout.value;
+											include ./value-display.pug
+
+					hr
+
+				else
+					- extraInputCount = extraInputCount + 1;
+
+			div(class="row mb-5")
+				div(class="col")
+					div(class="font-weight-bold text-left text-md-right")
+						span(class="d-inline d-md-none") Total Input: 
+						- var currencyValue = totalIOValues.input;
+						include ./value-display.pug
+					
+			
+			
+
+	div(class="col-lg-6")
+		each vout, voutIndex in tx.vout
+			div(class="row")
+				div(class="tx-io-label")
+					a(data-toggle="tooltip", title=("Output #" + (voutIndex + 1).toLocaleString()), style="white-space: nowrap;")
+						i(class=("fas fa-" + fontawesomeInputName + " mr-2"))
+						span(class="d-inline d-md-none") Output #
+						span #{(voutIndex + 1).toLocaleString()}
+
+				div(class="tx-io-content")
+					div(class="row")
+						div(class="tx-io-desc")
+							if (vout.scriptPubKey)
+								if (vout.scriptPubKey.addresses)
+									a(id=("output-" + voutIndex), href=("/address/" + vout.scriptPubKey.addresses[0]))
+										span(class="monospace", style="word-break: break-word;") #{vout.scriptPubKey.addresses[0]}
+
+									if (global.specialAddresses[vout.scriptPubKey.addresses[0]])
+										- var specialAddressInfo = global.specialAddresses[vout.scriptPubKey.addresses[0]];
+										if (specialAddressInfo.type == "minerPayout")
+											span  
+											a(data-toggle="tooltip", title=("Miner payout address: " + specialAddressInfo.minerInfo.name))
+												i(class="fas fa-certificate text-primary")
+										else if (specialAddressInfo.type == "donation")
+											span  
+											a(data-toggle="tooltip", title=("Development donation address. All support is appreciated!"))
+												i(class="fas fa-certificate text-primary")
+
+								else if (vout.scriptPubKey.hex && vout.scriptPubKey.hex.startsWith('6a24aa21a9ed'))
+									span(class="monospace") Segregated Witness committment 
+									a(href="https://github.com/bitcoin/bips/blob/master/bip-0141.mediawiki#commitment-structure", data-toggle="tooltip", title="View developer docs", target="_blank")  
+										i(class="fas fa-info-circle")
+
+								else if (vout.scriptPubKey.asm && vout.scriptPubKey.asm.startsWith('OP_RETURN '))
+									span(class="monospace") OP_RETURN: 
+									
+									- var opReturn = utils.getOpReturnTags(vout.scriptPubKey.asm); 
+									if(opReturn && opReturn.tag)
+										span(class="monospace") #{vout.scriptPubKey.asm.substring("OP_RETURN ".length)}
+
+									br
+									span(class="monospace text-muted") ASCII:  #{utils.hex2ascii(vout.scriptPubKey.asm.substring("OP_RETURN ".length))}
+	
+								else
+									span(class="monospace")
+										span(class="text-danger font-weight-bold") Unable to decode output:
+										br
+										span(class="font-weight-bold") type: 
+										span #{vout.scriptPubKey.type}
+										br
+										span(class="font-weight-bold") asm: 
+										span #{vout.scriptPubKey.asm}
+										br
+										span(class="font-weight-bold") decodedHex: 
+										span #{utils.hex2ascii(vout.scriptPubKey.hex)}
+
+						div(class="tx-io-value")
+							- var currencyValue = vout.value;
+							include ./value-display.pug
+
+			hr
+
+		div(class="row mb-5")
+			div(class="col")
+				div(class="font-weight-bold text-left text-md-right")
+					span(class="d-inline d-md-none") Total Output: 
+					- var currencyValue = totalIOValues.output;
+					include ./value-display.pug
+
+

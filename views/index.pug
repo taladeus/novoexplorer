@@ -1,0 +1,178 @@
+extends layout
+
+block headContent
+	title Home
+	
+block content
+	h1(class="h3") #{coinConfig.pageTitle} 
+	span(class="tag" style="font-size: small" ) Auto refreshed every 30 secs
+	hr
+	include includes/graph.pug
+
+	//- if (config.demoSite && session.hideHomepageBanner != "true")
+	//- 	div(class="alert alert-primary alert-dismissible", role="alert")
+	//- 		p
+	//- 			strong #{coinConfig.siteTitle}
+	//- 			span  is 
+	//- 			a(href="https://github.com/janoside/btc-rpc-explorer") open-source
+	//- 			span  and easy to set up. It can communicate with your 
+	//- 			a(href=coinConfig.nodeUrl) #{coinConfig.name} Full Node
+	//- 			span  via RPC. See the 
+	//- 			a(href="https://github.com/janoside/btc-rpc-explorer") project description
+	//- 			span  for a list of features and instructions for running.
+
+	//- 		div(style="height: 34px;")
+	//- 			a(class="github-button", href="https://github.com/janoside/btc-rpc-explorer", data-icon="octicon-star", data-size="large", data-show-count="true", aria-label="Star janoside/btc-rpc-explorer on GitHub", style="padding-right: 10px;") Star
+				
+	//- 			span    
+	//- 			a(class="github-button", href="https://github.com/janoside/btc-rpc-explorer/fork", data-icon="octicon-repo-forked", data-size="large", data-show-count="true", aria-label="Fork janoside/btc-rpc-explorer on GitHub") Fork
+
+	//- 		a(href="/changeSetting?name=hideHomepageBanner&value=true", class="close", aria-label="Close", style="text-decoration: none;")
+	//- 			span(aria-hidden="true") &times;
+
+	div(class="card mb-3")
+		div(class="card-header")
+			h2(class="h6 mb-0") Network Summary
+		div(class="card-body")
+			div(class="row")
+				div(class="col-md-4")
+					ul(style="list-style-type: none;", class="pl-0")
+						li
+							div(class="float-left", style="height: 40px; width: 40px;")
+								span
+									i(class="fas fa-tachometer-alt fa-2x mr-2", style="margin-top: 6px;")
+							- var hashrateData = utils.formatLargeNumber(miningInfo.networkhashps, 3);
+							
+							span(class="font-weight-bold") Hashrate 
+
+							p(class="lead")
+								span #{hashrateData[0]} 
+								span(title=(hashrateData[1].name + "-hash / x10^" + hashrateData[1].exponent), data-toggle="tooltip") #{hashrateData[1].abbreviation}H/s
+
+						if (getblockchaininfo.size_on_disk)
+							li
+								div(class="float-left", style="height: 40px; width: 40px;")
+									span
+										i(class="fas fa-database fa-2x mr-2", style="margin-top: 6px; margin-left: 3px;")
+								span(class="font-weight-bold") Blockchain Size
+
+								- var sizeData = utils.formatLargeNumber(getblockchaininfo.size_on_disk, 2);
+								p(class="lead") #{sizeData[0]} #{sizeData[1].abbreviation}B
+
+				div(class="col-md-4")
+					ul(style="list-style-type: none;", class="pl-0")
+						li
+							div(class="float-left", style="height: 40px; width: 40px;")
+								span
+									i(class="fas fa-unlock-alt fa-2x mr-2", style="margin-top: 6px; margin-left: 3px;")
+
+							span(class="font-weight-bold") Unconfirmed Transactions
+
+							p(class="lead") #{mempoolInfo.size.toLocaleString()} tx 
+								- var mempoolBytesData = utils.formatLargeNumber(mempoolInfo.usage, 2);
+								span(class="text-muted") (#{mempoolBytesData[0]} #{mempoolBytesData[1].abbreviation}B)
+
+						li
+							div(class="float-left", style="height: 40px; width: 40px; font-size: 12px;")
+								span
+									i(class="fas fa-dumbbell fa-2x mr-2", style="margin-top: 6px;")
+
+							- var difficultyData = utils.formatLargeNumber(getblockchaininfo.difficulty, 3);
+
+							span(class="font-weight-bold") Difficulty
+
+							p(class="lead")
+								span(title=parseFloat(getblockchaininfo.difficulty).toLocaleString(), data-toggle="tooltip")
+									span #{difficultyData[0]}
+									span  x 10
+									sup #{difficultyData[1].exponent}
+
+				div(class="col-md-4")
+					ul(style="list-style-type: none;", class="pl-0")
+						li 
+							div(class="float-left", style="height: 40px; width: 40px; font-size: 12px;")
+								span
+									i(class="fas fa-money-bill-wave-alt fa-2x mr-2", style="margin-top: 7px;")
+							if (coinConfig.exchangeRateData)
+								span(class="font-weight-bold") Exchange Rate 
+									span(data-toggle="tooltip", title=("Exchange-rate data from: " + coinConfig.exchangeRateData.jsonUrl))
+										i(class="fas fa-info-circle")
+
+								if (global.exchangeRate)
+									p(class="lead") #{utils.formatExchangedCurrency(1.0)}
+								else
+									p(class="lead") -
+
+						li
+							div(class="float-left", style="height: 40px; width: 40px;")
+								span
+									i(class="fas fa-bolt fa-2x mr-2", style="margin-top: 6px; margin-left: 6px;")
+
+							- var chainworkData = utils.formatLargeNumber(parseInt("0x" + getblockchaininfo.chainwork), 2);
+							span(class="font-weight-bold") Chainwork
+							
+							p(class="lead")
+								span(data-toggle="tooltip", title=getblockchaininfo.chainwork.replace(/^0+/, ''))
+									span #{chainworkData[0]}
+									span  x 10
+									sup #{chainworkData[1].exponent}
+									span  hashes
+
+	include includes/tools-card.pug
+	
+	if (latestBlocks)
+		div(class="card mb-3")
+			div(class="card-header")
+				div(class="row")
+					div(class="col")
+						h2(class="h6 mb-0") Latest Blocks
+							if (getblockchaininfo.initialblockdownload)
+								small  (#{(getblockchaininfo.headers - getblockchaininfo.blocks).toLocaleString()} behind)
+
+					div(class="col")
+						span(style="float: right;")
+							a(href="/blocks")
+								i(class="fas fa-cubes")
+								span  Browse Blocks &raquo;
+
+			div(class="card-body")
+
+				- var blocks = latestBlocks;
+				- var blockOffset = 0;
+
+				include includes/blocks-list.pug
+
+
+	if (chainTxStats)
+		div(class="card mb-3")
+			div(class="card-header")
+				div(class="row")
+					div(class="col")
+						h2(class="h6 mb-0") Transaction Stats Summary
+
+					div(class="col")
+						span(style="float: right;")
+							a(href="/tx-stats")
+								i(class="fas fa-chart-bar")
+								span  Transaction Stats &raquo;
+		
+			div(class="card-body")
+				table(class="table table-responsive-sm text-right mb-0")
+					thead
+						tr
+							th
+							each item, index in chainTxStatsLabels
+								th #{item}
+					tbody
+						tr
+							th(class="text-left") Count
+							each item, index in chainTxStats
+								td(class="monospace") #{item.window_tx_count.toLocaleString()}
+
+						tr
+							th(class="text-left") Rate
+							each item, index in chainTxStats
+								td(class="monospace") #{new Decimal(item.txrate).toDecimalPlaces(4)}
+
+block endOfBody
+	script(async, defer, src="https://buttons.github.io/buttons.js")
