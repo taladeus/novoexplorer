@@ -3,16 +3,16 @@ Decimal8 = Decimal.clone({ precision:8, rounding:8 });
 
 var btcCurrencyUnits = [
 	{
-		name:"NBC",
+		name:"Novo",
 		multiplier:1,
 		default:true,
-		values:["", "nbc", "NBC"],
+		values:["", "novo", "NOVO"],
 		decimalPlaces:8
 	},
 	{
-		name:"mNBC",
+		name:"mNovo",
 		multiplier:1000,
-		values:["mNBC"],
+		values:["mNovo"],
 		decimalPlaces:5
 	},
 	{
@@ -30,8 +30,8 @@ var btcCurrencyUnits = [
 ];
 
 module.exports = {
-	name:"NBC",
-	ticker:"NBC",
+	name:"Novo",
+	ticker:"Novo",
 	logoUrl:"/img/logo/nbc.png",
 	siteTitle:"novoblocks.info",
 	pageTitle: "Novo Bitcoin Explorer",
@@ -39,13 +39,13 @@ module.exports = {
 	nodeTitle:"Novo Bitcoin Full Node",
 	nodeUrl:"https://github.com/novobitcoin/novobitcoin-release/releases",
 	// demoSiteUrl: "https://btc.chaintools.io",
-	miningPoolsConfigUrls:[
-		 "https://raw.githubusercontent.com/waqas64/Blockchain-Known-Pools/master/pools.json",
-		 "https://raw.githubusercontent.com/btccom/Blockchain-Known-Pools/master/pools.json"
-	],
+	// miningPoolsConfigUrls:[
+	// 	 "https://raw.githubusercontent.com/waqas64/Blockchain-Known-Pools/master/pools.json",
+	// 	 "https://raw.githubusercontent.com/btccom/Blockchain-Known-Pools/master/pools.json"
+	// ],
 	maxBlockWeight: 4000000,
 	currencyUnits:btcCurrencyUnits,
-	currencyUnitsByName:{"NBC":btcCurrencyUnits[0], "mNBC":btcCurrencyUnits[1], "bits":btcCurrencyUnits[2], "sat":btcCurrencyUnits[3]},
+	currencyUnitsByName:{"Novo":btcCurrencyUnits[0], "mNovo":btcCurrencyUnits[1], "bits":btcCurrencyUnits[2], "sat":btcCurrencyUnits[3]},
 	baseCurrencyUnit:btcCurrencyUnits[3],
 	feeSatoshiPerByteBucketMaxima: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 50, 75, 100, 150],
 	genesisBlockHash: "0000000000b3de1ef5bd7c20708dbafc3df0441877fa4a59cda22b4c2d4f39ce",

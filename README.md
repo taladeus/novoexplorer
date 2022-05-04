@@ -6,7 +6,7 @@ This tool is intended to be a simple, self-hosted explorer for the Bitcoin block
 
 Live demo available at:
 
-* NBC: https://novoblocks.info
+* Novo: https://novoblocks.info
 
 # Features
 

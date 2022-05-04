@@ -1,5 +1,5 @@
-var nbc = require("./coins/nbc.js");
+var novo = require("./coins/novo.js");
 
 module.exports = {
-	"NBC": nbc
+	"Novo": novo
 };
